@@ -25,7 +25,8 @@ export default function RecruiterProfileScreen() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Адаптивность для веб
-  const contentMaxWidth = 600;
+  const isWideScreen = width > 768;
+  const formMaxWidth = 500;
 
   useEffect(() => {
     setHasChanges(name !== currentUser.name);
@@ -62,97 +63,96 @@ export default function RecruiterProfileScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header - на всю ширину */}
       <View style={styles.header}>
-        <View style={[styles.headerContent, { maxWidth: contentMaxWidth }]}>
-          <View style={styles.headerRow}>
-            <MenuButton />
-            <Text style={styles.headerTitle}>Личный кабинет</Text>
-          </View>
+        <View style={styles.headerRow}>
+          <MenuButton />
+          <Text style={styles.headerTitle}>Личный кабинет</Text>
         </View>
       </View>
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isWideScreen && styles.scrollContentWide
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Центрированный контент */}
-        <View style={styles.centerWrapper}>
-          <View style={[styles.contentCard, { maxWidth: contentMaxWidth }]}>
-            {/* Avatar Section */}
-            <View style={styles.avatarSection}>
-              <View style={styles.avatarWrapper}>
-                {currentUser.avatar ? (
-                  <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
-                ) : (
-                  <View style={styles.avatarPlaceholder}>
-                    <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
-                  </View>
-                )}
-                <View style={styles.cameraButton}>
-                  <Camera size={16} color="#FFFFFF" />
+        {/* Карточка профиля - центрирована */}
+        <View style={[styles.contentCard, { maxWidth: formMaxWidth }]}>
+          {/* Avatar Section */}
+          <View style={styles.avatarSection}>
+            <View style={styles.avatarWrapper}>
+              {currentUser.avatar ? (
+                <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
                 </View>
-              </View>
-              <Text style={styles.userName}>{currentUser.name}</Text>
-              <View style={styles.roleBadge}>
-                <Text style={styles.roleLabel}>Рекрутер</Text>
-              </View>
-            </View>
-
-            {/* Divider */}
-            <View style={styles.divider} />
-
-            {/* Form */}
-            <View style={styles.form}>
-              {/* Name */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Имя</Text>
-                <View style={styles.inputContainer}>
-                  <User size={20} color="#64748B" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    value={name}
-                    onChangeText={setName}
-                    placeholder="Введите имя"
-                    placeholderTextColor="#94A3B8"
-                  />
-                </View>
-              </View>
-
-              {/* Email (readonly) */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email</Text>
-                <View style={[styles.inputContainer, styles.inputDisabled]}>
-                  <Mail size={20} color="#94A3B8" style={styles.inputIcon} />
-                  <TextInput
-                    style={[styles.input, styles.inputTextDisabled]}
-                    value={currentUser.email}
-                    editable={false}
-                  />
-                </View>
-                <Text style={styles.hint}>Email нельзя изменить</Text>
-              </View>
-
-              {/* Save Button */}
-              <TouchableOpacity
-                style={[
-                  styles.saveButton,
-                  (!hasChanges || isLoading) && styles.saveButtonDisabled
-                ]}
-                onPress={handleSave}
-                disabled={!hasChanges || isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Save size={20} color="#FFFFFF" />
-                    <Text style={styles.saveButtonText}>Сохранить изменения</Text>
-                  </>
-                )}
+              )}
+              <TouchableOpacity style={styles.cameraButton}>
+                <Camera size={16} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
+            <Text style={styles.userName}>{currentUser.name}</Text>
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleLabel}>Рекрутер</Text>
+            </View>
+          </View>
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Form */}
+          <View style={styles.form}>
+            {/* Name */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Имя</Text>
+              <View style={styles.inputContainer}>
+                <User size={20} color="#64748B" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Введите имя"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+            </View>
+
+            {/* Email (readonly) */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <View style={[styles.inputContainer, styles.inputDisabled]}>
+                <Mail size={20} color="#94A3B8" style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, styles.inputTextDisabled]}
+                  value={currentUser.email}
+                  editable={false}
+                />
+              </View>
+              <Text style={styles.hint}>Email нельзя изменить</Text>
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                (!hasChanges || isLoading) && styles.saveButtonDisabled
+              ]}
+              onPress={handleSave}
+              disabled={!hasChanges || isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Save size={20} color="#FFFFFF" />
+                  <Text style={styles.saveButtonText}>Сохранить изменения</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -169,10 +169,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
-    alignItems: 'center',
-  },
-  headerContent: {
-    width: '100%',
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 16,
@@ -191,12 +187,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingVertical: 32,
-    paddingHorizontal: 24,
+    padding: 24,
+    paddingBottom: 40,
   },
-  centerWrapper: {
+  scrollContentWide: {
     alignItems: 'center',
-    width: '100%',
+    paddingVertical: 48,
   },
   contentCard: {
     width: '100%',
