@@ -68,8 +68,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAuthUser(user);
 
       if (user) {
-        // Load user profile from Firestore
-        const profile = await getUserProfile(user.uid);
+        // Load user profile from Firestore with retry
+        // (профиль может ещё не успеть создаться при первом входе)
+        let profile = await getUserProfile(user.uid);
+
+        // Retry если профиль не найден (race condition при Google входе)
+        if (!profile) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          profile = await getUserProfile(user.uid);
+        }
+
         setUserProfile(profile);
 
         if (profile) {
