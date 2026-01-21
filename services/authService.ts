@@ -6,7 +6,7 @@ import {
   signInWithPopup,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { UserRole } from '../types';
 
@@ -62,6 +62,21 @@ export const createUserProfile = async (
   } catch (error) {
     console.error('Error creating user profile:', error);
     throw error;
+  }
+};
+
+// Обновить профиль пользователя в Firestore
+export const updateUserProfile = async (
+  uid: string,
+  updates: Partial<Pick<UserProfile, 'name' | 'companyId'>>
+): Promise<{ error: string | null }> => {
+  try {
+    const docRef = doc(db, 'users', uid);
+    await updateDoc(docRef, updates);
+    return { error: null };
+  } catch (error: any) {
+    console.error('Error updating user profile:', error);
+    return { error: 'Не удалось обновить профиль' };
   }
 };
 

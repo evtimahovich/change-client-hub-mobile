@@ -1,12 +1,14 @@
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Users, Briefcase, Building2, LayoutDashboard, LogOut } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Users, Briefcase, Building2, LayoutDashboard, LogOut, ChevronRight } from 'lucide-react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { useRouter } from 'expo-router';
 import { useApp } from '../../contexts/AppContext';
 
 function CustomDrawerContent(props: any) {
   const { currentUser, logout } = useApp();
+  const router = useRouter();
 
   const getInitials = (name: string) => {
     return name
@@ -17,19 +19,30 @@ function CustomDrawerContent(props: any) {
       .slice(0, 2);
   };
 
+  const handleProfilePress = () => {
+    props.navigation.closeDrawer();
+    router.push('/(drawer)/profile');
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#0F172A' }}>
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
+      {/* Profile Section - Clickable */}
+      <TouchableOpacity style={styles.profileSection} onPress={handleProfilePress} activeOpacity={0.7}>
         <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
-          </View>
+          {currentUser.avatar ? (
+            <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
+            </View>
+          )}
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{currentUser.name}</Text>
+            <Text style={styles.profileRole}>Рекрутер</Text>
           </View>
+          <ChevronRight size={20} color="#64748B" />
         </View>
-      </View>
+      </TouchableOpacity>
 
       {/* Menu Items */}
       <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
@@ -104,6 +117,13 @@ export default function DrawerLayout() {
           drawerIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} />,
         }}
       />
+      <Drawer.Screen
+        name="profile"
+        options={{
+          title: 'Профиль',
+          drawerItemStyle: { display: 'none' },
+        }}
+      />
     </Drawer>
   );
 }
@@ -128,6 +148,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  avatarImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
   avatarText: {
     fontSize: 18,
     fontWeight: '700',
@@ -141,6 +166,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
+  },
+  profileRole: {
+    fontSize: 14,
+    color: '#94A3B8',
   },
   drawerContent: {
     paddingTop: 16,
