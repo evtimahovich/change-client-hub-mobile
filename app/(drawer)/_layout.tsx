@@ -1,20 +1,32 @@
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { Users, Briefcase, Building2, LayoutDashboard } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Users, Briefcase, Building2, LayoutDashboard, LogOut } from 'lucide-react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { useApp } from '../../contexts/AppContext';
 
 function CustomDrawerContent(props: any) {
+  const { currentUser, logout } = useApp();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#0F172A' }}>
       {/* Profile Section */}
       <View style={styles.profileSection}>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>ET</Text>
+            <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Eugenia T.</Text>
+            <Text style={styles.profileName}>{currentUser.name}</Text>
           </View>
         </View>
       </View>
@@ -23,6 +35,12 @@ function CustomDrawerContent(props: any) {
       <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
+
+      {/* Logout Button */}
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+        <LogOut size={20} color="#EF4444" />
+        <Text style={styles.logoutText}>Выйти</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -126,5 +144,20 @@ const styles = StyleSheet.create({
   },
   drawerContent: {
     paddingTop: 16,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    marginHorizontal: 12,
+    marginBottom: 24,
+    borderRadius: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#EF4444',
   },
 });
