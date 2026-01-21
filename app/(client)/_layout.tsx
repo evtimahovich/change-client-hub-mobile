@@ -1,54 +1,168 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
-import { Home, Users, Briefcase, MessageSquare } from 'lucide-react-native';
+import { Drawer } from 'expo-router/drawer';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Users, Briefcase, LayoutDashboard, MessageCircle, LogOut } from 'lucide-react-native';
+import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { useApp } from '../../contexts/AppContext';
 
-export default function ClientLayout() {
+function CustomDrawerContent(props: any) {
+  const { currentUser, logout } = useApp();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
-    <Tabs
+    <View style={{ flex: 1, backgroundColor: '#0F172A' }}>
+      {/* Profile Section */}
+      <View style={styles.profileSection}>
+        <View style={styles.profileHeader}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
+          </View>
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName}>{currentUser.name}</Text>
+            <Text style={styles.profileRole}>Клиент</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Menu Items */}
+      <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
+        <DrawerItemList {...props} />
+      </DrawerContentScrollView>
+
+      {/* Logout Button */}
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+        <LogOut size={20} color="#EF4444" />
+        <Text style={styles.logoutText}>Выйти</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+export default function ClientDrawerLayout() {
+  return (
+    <Drawer
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: '#0066FF',
-        tabBarInactiveTintColor: '#64748B',
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: '#E2E8F0',
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+        drawerPosition: 'left',
+        drawerType: 'front',
+        drawerStyle: {
+          backgroundColor: '#0F172A',
+          width: 280,
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
+        headerShown: false,
+        drawerActiveTintColor: '#FFFFFF',
+        drawerInactiveTintColor: '#94A3B8',
+        drawerActiveBackgroundColor: '#1E293B',
+        drawerLabelStyle: {
+          fontSize: 16,
           fontWeight: '600',
+          marginLeft: -16,
+        },
+        drawerItemStyle: {
+          borderRadius: 8,
+          marginVertical: 4,
+          marginHorizontal: 12,
+          paddingVertical: 8,
         },
       }}>
-      <Tabs.Screen
+      <Drawer.Screen
         name="index"
         options={{
-          title: 'Главная',
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          title: 'Дашборд',
+          drawerLabel: 'Дашборд',
+          drawerIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} />,
         }}
       />
-      <Tabs.Screen
+      <Drawer.Screen
         name="candidates"
         options={{
           title: 'Кандидаты',
-          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
+          drawerLabel: 'Кандидаты',
+          drawerIcon: ({ color, size }) => <Users color={color} size={size} />,
         }}
       />
-      <Tabs.Screen
+      <Drawer.Screen
         name="vacancies"
         options={{
           title: 'Вакансии',
-          tabBarIcon: ({ color, size }) => <Briefcase color={color} size={size} />,
+          drawerLabel: 'Вакансии',
+          drawerIcon: ({ color, size }) => <Briefcase color={color} size={size} />,
         }}
       />
-      <Tabs.Screen
+      <Drawer.Screen
         name="messages"
         options={{
           title: 'Сообщения',
-          tabBarIcon: ({ color, size }) => <MessageSquare color={color} size={size} />,
+          drawerLabel: 'Сообщения',
+          drawerIcon: ({ color, size }) => <MessageCircle color={color} size={size} />,
         }}
       />
-    </Tabs>
+    </Drawer>
   );
 }
+
+const styles = StyleSheet.create({
+  profileSection: {
+    padding: 24,
+    paddingTop: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E293B',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#0066FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  profileRole: {
+    fontSize: 14,
+    color: '#94A3B8',
+  },
+  drawerContent: {
+    paddingTop: 16,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    marginHorizontal: 12,
+    marginBottom: 24,
+    borderRadius: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#EF4444',
+  },
+});

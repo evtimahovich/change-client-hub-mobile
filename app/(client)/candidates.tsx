@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
+import { View } from 'react-native';
 import { CandidateList } from '../../components/CandidateList';
+import { MenuButton } from '../../components/MenuButton';
 import { useApp } from '../../contexts/AppContext';
 
 export default function ClientCandidatesScreen() {
@@ -21,13 +23,16 @@ export default function ClientCandidatesScreen() {
   }, [activeVacancies, companies]);
 
   return (
-    <CandidateList
-      candidates={visibleCandidates}
-      vacancies={vacanciesWithCompany}
-      companies={companies}
-      onToggleShortlist={toggleShortlist}
-      onStatusChange={handleStatusChange}
-      isClientView={true}
-    />
+    <View style={{ flex: 1 }}>
+      <CandidateList
+        candidates={visibleCandidates}
+        vacancies={vacanciesWithCompany}
+        companies={companies}
+        onToggleShortlist={toggleShortlist}
+        onStatusChange={handleStatusChange}
+        isClientView={true}
+      />
+      <MenuButton />
+    </View>
   );
 }
