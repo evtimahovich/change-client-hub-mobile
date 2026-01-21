@@ -101,12 +101,12 @@ export const loginWithGoogle = async () => {
     // Проверяем есть ли профиль
     const profile = await getUserProfile(result.user.uid);
     if (!profile) {
-      // Создаём профиль по умолчанию (рекрутер)
+      // Создаём профиль по умолчанию (клиент/компания)
       await createUserProfile(
         result.user.uid,
         result.user.displayName || 'User',
         result.user.email || '',
-        UserRole.RECRUITER
+        UserRole.CLIENT
       );
     }
 

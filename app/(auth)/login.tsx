@@ -12,8 +12,10 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, User, Building2 } from 'lucide-react-native';
 import { loginWithEmail, loginWithGoogle } from '../../services/authService';
+
+type LoginTab = 'recruiter' | 'company';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function LoginScreen() {
   const isWeb = Platform.OS === 'web';
   const isLargeScreen = width >= 768;
 
+  const [activeTab, setActiveTab] = useState<LoginTab>('recruiter');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -59,6 +62,11 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
+  const handleTabChange = (tab: LoginTab) => {
+    setActiveTab(tab);
+    setError('');
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -80,11 +88,56 @@ export default function LoginScreen() {
             <Text style={styles.subtitle}>HR CRM Platform</Text>
           </View>
 
+          {/* Вкладки */}
+          <View style={styles.tabsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === 'recruiter' && styles.tabActive,
+                { borderTopLeftRadius: 16 },
+              ]}
+              onPress={() => handleTabChange('recruiter')}
+            >
+              <User
+                size={20}
+                color={activeTab === 'recruiter' ? '#1E2875' : '#9CA3AF'}
+              />
+              <Text style={[
+                styles.tabText,
+                activeTab === 'recruiter' && styles.tabTextActive,
+              ]}>
+                Рекрутер
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === 'company' && styles.tabActive,
+                { borderTopRightRadius: 16 },
+              ]}
+              onPress={() => handleTabChange('company')}
+            >
+              <Building2
+                size={20}
+                color={activeTab === 'company' ? '#1E2875' : '#9CA3AF'}
+              />
+              <Text style={[
+                styles.tabText,
+                activeTab === 'company' && styles.tabTextActive,
+              ]}>
+                Компания
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={[
             styles.form,
             isWeb && isLargeScreen && styles.formWeb,
           ]}>
-            <Text style={styles.title}>Вход в аккаунт</Text>
+            <Text style={styles.title}>
+              {activeTab === 'recruiter' ? 'Вход для рекрутеров' : 'Вход для компаний'}
+            </Text>
 
             {error ? (
               <View style={styles.errorBox}>
@@ -141,19 +194,24 @@ export default function LoginScreen() {
               )}
             </TouchableOpacity>
 
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>или</Text>
-              <View style={styles.dividerLine} />
-            </View>
+            {/* Google вход только для компаний */}
+            {activeTab === 'company' && (
+              <>
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>или</Text>
+                  <View style={styles.dividerLine} />
+                </View>
 
-            <TouchableOpacity
-              style={[styles.button, styles.googleButton]}
-              onPress={handleGoogleLogin}
-              disabled={loading}
-            >
-              <Text style={styles.googleButtonText}>Войти через Google</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.googleButton]}
+                  onPress={handleGoogleLogin}
+                  disabled={loading}
+                >
+                  <Text style={styles.googleButtonText}>Войти через Google</Text>
+                </TouchableOpacity>
+              </>
+            )}
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>Нет аккаунта?</Text>
@@ -206,9 +264,35 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 4,
   },
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 0,
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    backgroundColor: '#E5E7EB',
+    cursor: 'pointer',
+  } as any,
+  tabActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  tabTextActive: {
+    color: '#1E2875',
+  },
   form: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -218,7 +302,8 @@ const styles = StyleSheet.create({
   },
   formWeb: {
     padding: 40,
-    borderRadius: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
