@@ -1,7 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, Redirect, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -62,6 +62,7 @@ function RootLayoutNav() {
 
 function NavigationWrapper() {
   const { currentUser, authUser, isLoading } = useApp();
+  const segments = useSegments();
   const isClient = currentUser.role === UserRole.CLIENT;
 
   // Показываем загрузку пока проверяем авторизацию
@@ -73,21 +74,42 @@ function NavigationWrapper() {
     );
   }
 
+  // Определяем текущую группу маршрутов
+  const inAuthGroup = segments[0] === '(auth)';
+  const inClientGroup = segments[0] === '(client)';
+  const inDrawerGroup = segments[0] === '(drawer)';
+
+  // Редиректы на основе auth состояния
+  if (!authUser && !inAuthGroup) {
+    // Не авторизован и не на странице авторизации -> редирект на логин
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  if (authUser && inAuthGroup) {
+    // Авторизован но на странице авторизации -> редирект в приложение
+    if (isClient) {
+      return <Redirect href="/(client)" />;
+    } else {
+      return <Redirect href="/(drawer)" />;
+    }
+  }
+
+  if (authUser && isClient && inDrawerGroup) {
+    // Клиент пытается попасть в drawer рекрутера -> редирект в клиентский кабинет
+    return <Redirect href="/(client)" />;
+  }
+
+  if (authUser && !isClient && inClientGroup) {
+    // Рекрутер пытается попасть в клиентский кабинет -> редирект в drawer
+    return <Redirect href="/(drawer)" />;
+  }
+
   return (
     <Stack>
-      {!authUser ? (
-        // Неавторизованный пользователь -> экраны авторизации
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      ) : isClient ? (
-        // Клиент -> клиентский кабинет
-        <Stack.Screen name="(client)" options={{ headerShown: false }} />
-      ) : (
-        // Рекрутер/Админ -> основное приложение
-        <>
-          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </>
-      )}
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(client)" options={{ headerShown: false }} />
+      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>
   );
