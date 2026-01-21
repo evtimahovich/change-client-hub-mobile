@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff, User, Building2 } from 'lucide-react-native';
@@ -17,6 +18,10 @@ import { UserRole } from '../../types';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const isLargeScreen = width >= 768;
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,146 +66,157 @@ export default function RegisterScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isWeb && isLargeScreen && styles.scrollContentWeb,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.logo}>Change Hub</Text>
-          <Text style={styles.subtitle}>HR CRM Platform</Text>
-        </View>
+        <View style={[
+          styles.contentWrapper,
+          isWeb && isLargeScreen && styles.contentWrapperWeb,
+        ]}>
+          <View style={styles.header}>
+            <Text style={[styles.logo, isLargeScreen && styles.logoLarge]}>Change Hub</Text>
+            <Text style={styles.subtitle}>HR CRM Platform</Text>
+          </View>
 
-        <View style={styles.form}>
-          <Text style={styles.title}>Регистрация</Text>
+          <View style={[
+            styles.form,
+            isWeb && isLargeScreen && styles.formWeb,
+          ]}>
+            <Text style={styles.title}>Регистрация</Text>
 
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
+            {error ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
+            {/* Выбор роли */}
+            <Text style={styles.label}>Выберите роль</Text>
+            <View style={styles.roleSelector}>
+              <TouchableOpacity
+                style={[
+                  styles.roleButton,
+                  role === UserRole.RECRUITER && styles.roleButtonActive,
+                ]}
+                onPress={() => setRole(UserRole.RECRUITER)}
+              >
+                <User
+                  size={20}
+                  color={role === UserRole.RECRUITER ? '#FFFFFF' : '#6B7280'}
+                />
+                <Text
+                  style={[
+                    styles.roleButtonText,
+                    role === UserRole.RECRUITER && styles.roleButtonTextActive,
+                  ]}
+                >
+                  Рекрутер
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.roleButton,
+                  role === UserRole.CLIENT && styles.roleButtonActive,
+                ]}
+                onPress={() => setRole(UserRole.CLIENT)}
+              >
+                <Building2
+                  size={20}
+                  color={role === UserRole.CLIENT ? '#FFFFFF' : '#6B7280'}
+                />
+                <Text
+                  style={[
+                    styles.roleButtonText,
+                    role === UserRole.CLIENT && styles.roleButtonTextActive,
+                  ]}
+                >
+                  Клиент
+                </Text>
+              </TouchableOpacity>
             </View>
-          ) : null}
 
-          {/* Выбор роли */}
-          <Text style={styles.label}>Выберите роль</Text>
-          <View style={styles.roleSelector}>
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === UserRole.RECRUITER && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole(UserRole.RECRUITER)}
-            >
-              <User
-                size={20}
-                color={role === UserRole.RECRUITER ? '#FFFFFF' : '#6B7280'}
+            <View style={styles.inputContainer}>
+              <User size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Имя"
+                placeholderTextColor="#9CA3AF"
+                value={name}
+                onChangeText={setName}
+                autoComplete="name"
               />
-              <Text
-                style={[
-                  styles.roleButtonText,
-                  role === UserRole.RECRUITER && styles.roleButtonTextActive,
-                ]}
-              >
-                Рекрутер
-              </Text>
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === UserRole.CLIENT && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole(UserRole.CLIENT)}
-            >
-              <Building2
-                size={20}
-                color={role === UserRole.CLIENT ? '#FFFFFF' : '#6B7280'}
+            <View style={styles.inputContainer}>
+              <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#9CA3AF"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
               />
-              <Text
-                style={[
-                  styles.roleButtonText,
-                  role === UserRole.CLIENT && styles.roleButtonTextActive,
-                ]}
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Пароль"
+                placeholderTextColor="#9CA3AF"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
               >
-                Клиент
-              </Text>
-            </TouchableOpacity>
-          </View>
+                {showPassword ? (
+                  <EyeOff size={20} color="#9CA3AF" />
+                ) : (
+                  <Eye size={20} color="#9CA3AF" />
+                )}
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.inputContainer}>
-            <User size={20} color="#9CA3AF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Имя"
-              placeholderTextColor="#9CA3AF"
-              value={name}
-              onChangeText={setName}
-              autoComplete="name"
-            />
-          </View>
+            <View style={styles.inputContainer}>
+              <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Подтвердите пароль"
+                placeholderTextColor="#9CA3AF"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showPassword}
+              />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#9CA3AF"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Пароль"
-              placeholderTextColor="#9CA3AF"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
             <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeButton}
+              style={[styles.button, styles.primaryButton]}
+              onPress={handleRegister}
+              disabled={loading}
             >
-              {showPassword ? (
-                <EyeOff size={20} color="#9CA3AF" />
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Eye size={20} color="#9CA3AF" />
+                <Text style={styles.buttonText}>Зарегистрироваться</Text>
               )}
             </TouchableOpacity>
-          </View>
 
-          <View style={styles.inputContainer}>
-            <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Подтвердите пароль"
-              placeholderTextColor="#9CA3AF"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showPassword}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, styles.primaryButton]}
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.buttonText}>Зарегистрироваться</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Уже есть аккаунт?</Text>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.linkText}>Войти</Text>
-            </TouchableOpacity>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Уже есть аккаунт?</Text>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Text style={styles.linkText}>Войти</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -218,6 +234,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
+  scrollContentWeb: {
+    padding: 48,
+  },
+  contentWrapper: {
+    width: '100%',
+  },
+  contentWrapperWeb: {
+    maxWidth: 480,
+    alignSelf: 'center',
+    width: '100%',
+  },
   header: {
     alignItems: 'center',
     marginBottom: 32,
@@ -226,6 +253,9 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: '#1E2875',
+  },
+  logoLarge: {
+    fontSize: 42,
   },
   subtitle: {
     fontSize: 16,
@@ -241,6 +271,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+  },
+  formWeb: {
+    padding: 40,
+    borderRadius: 24,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
   },
   title: {
     fontSize: 24,
@@ -282,7 +319,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
     backgroundColor: '#F9FAFB',
-  },
+    cursor: 'pointer',
+  } as any,
   roleButtonActive: {
     backgroundColor: '#1E2875',
     borderColor: '#1E2875',
@@ -313,7 +351,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontSize: 16,
     color: '#1F2937',
-  },
+    outlineStyle: 'none',
+  } as any,
   eyeButton: {
     padding: 4,
   },
@@ -323,7 +362,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
-  },
+    cursor: 'pointer',
+  } as any,
   primaryButton: {
     backgroundColor: '#1E2875',
   },
@@ -347,5 +387,6 @@ const styles = StyleSheet.create({
     color: '#1E2875',
     fontSize: 14,
     fontWeight: '600',
-  },
+    cursor: 'pointer',
+  } as any,
 });

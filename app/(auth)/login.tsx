@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
@@ -16,6 +17,10 @@ import { loginWithEmail, loginWithGoogle } from '../../services/authService';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === 'web';
+  const isLargeScreen = width >= 768;
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -60,91 +65,102 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isWeb && isLargeScreen && styles.scrollContentWeb,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.logo}>Change Hub</Text>
-          <Text style={styles.subtitle}>HR CRM Platform</Text>
-        </View>
-
-        <View style={styles.form}>
-          <Text style={styles.title}>Вход в аккаунт</Text>
-
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : null}
-
-          <View style={styles.inputContainer}>
-            <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#9CA3AF"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
+        <View style={[
+          styles.contentWrapper,
+          isWeb && isLargeScreen && styles.contentWrapperWeb,
+        ]}>
+          <View style={styles.header}>
+            <Text style={[styles.logo, isLargeScreen && styles.logoLarge]}>Change Hub</Text>
+            <Text style={styles.subtitle}>HR CRM Platform</Text>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Пароль"
-              placeholderTextColor="#9CA3AF"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoComplete="password"
-            />
+          <View style={[
+            styles.form,
+            isWeb && isLargeScreen && styles.formWeb,
+          ]}>
+            <Text style={styles.title}>Вход в аккаунт</Text>
+
+            {error ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.inputContainer}>
+              <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#9CA3AF"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Пароль"
+                placeholderTextColor="#9CA3AF"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
+              >
+                {showPassword ? (
+                  <EyeOff size={20} color="#9CA3AF" />
+                ) : (
+                  <Eye size={20} color="#9CA3AF" />
+                )}
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeButton}
+              style={[styles.button, styles.primaryButton]}
+              onPress={handleLogin}
+              disabled={loading}
             >
-              {showPassword ? (
-                <EyeOff size={20} color="#9CA3AF" />
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Eye size={20} color="#9CA3AF" />
+                <Text style={styles.buttonText}>Войти</Text>
               )}
             </TouchableOpacity>
-          </View>
 
-          <TouchableOpacity
-            style={[styles.button, styles.primaryButton]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.buttonText}>Войти</Text>
-            )}
-          </TouchableOpacity>
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>или</Text>
+              <View style={styles.dividerLine} />
+            </View>
 
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>или</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, styles.googleButton]}
-            onPress={handleGoogleLogin}
-            disabled={loading}
-          >
-            <Text style={styles.googleButtonText}>Войти через Google</Text>
-          </TouchableOpacity>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Нет аккаунта?</Text>
-            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-              <Text style={styles.linkText}>Зарегистрироваться</Text>
+            <TouchableOpacity
+              style={[styles.button, styles.googleButton]}
+              onPress={handleGoogleLogin}
+              disabled={loading}
+            >
+              <Text style={styles.googleButtonText}>Войти через Google</Text>
             </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Нет аккаунта?</Text>
+              <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+                <Text style={styles.linkText}>Зарегистрироваться</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -162,6 +178,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
+  scrollContentWeb: {
+    padding: 48,
+  },
+  contentWrapper: {
+    width: '100%',
+  },
+  contentWrapperWeb: {
+    maxWidth: 480,
+    alignSelf: 'center',
+    width: '100%',
+  },
   header: {
     alignItems: 'center',
     marginBottom: 40,
@@ -170,6 +197,9 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: '#1E2875',
+  },
+  logoLarge: {
+    fontSize: 42,
   },
   subtitle: {
     fontSize: 16,
@@ -185,6 +215,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+  },
+  formWeb: {
+    padding: 40,
+    borderRadius: 24,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
   },
   title: {
     fontSize: 24,
@@ -222,7 +259,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontSize: 16,
     color: '#1F2937',
-  },
+    outlineStyle: 'none',
+  } as any,
   eyeButton: {
     padding: 4,
   },
@@ -231,7 +269,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+    cursor: 'pointer',
+  } as any,
   primaryButton: {
     backgroundColor: '#1E2875',
   },
@@ -280,5 +319,6 @@ const styles = StyleSheet.create({
     color: '#1E2875',
     fontSize: 14,
     fontWeight: '600',
-  },
+    cursor: 'pointer',
+  } as any,
 });
