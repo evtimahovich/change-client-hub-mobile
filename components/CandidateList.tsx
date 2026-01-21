@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { KanbanBoard } from './KanbanBoard';
 import CandidateDrawer from './CandidateDrawer';
 import { VacancyWizardModal } from './VacancyWizardModal';
+import { MenuButton } from './MenuButton';
 
 interface CandidateListProps {
   candidates: Candidate[];
@@ -425,9 +426,12 @@ export const CandidateList: React.FC<CandidateListProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>Кандидаты</Text>
-            <Text style={styles.subtitle}>(1 280) Кандидатов отображается</Text>
+          <View style={styles.titleRow}>
+            <MenuButton />
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>Кандидаты</Text>
+              <Text style={styles.subtitle}>(1 280) Кандидатов отображается</Text>
+            </View>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.filterButton} onPress={() => setFilterModalVisible(true)}>
@@ -522,6 +526,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 16,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   titleSection: {},
   title: {

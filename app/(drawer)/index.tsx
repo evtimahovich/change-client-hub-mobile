@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Dashboard } from '../../components/Dashboard';
-import { MenuButton } from '../../components/MenuButton';
 import { useApp } from '../../contexts/AppContext';
 
 export default function DashboardScreen() {
@@ -9,7 +8,6 @@ export default function DashboardScreen() {
   return (
     <View style={{ flex: 1 }}>
       <Dashboard user={currentUser} />
-      <MenuButton />
     </View>
   );
 }

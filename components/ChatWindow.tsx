@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, FlatList, StyleSheet } from 'react-native';
 import { ChatMessage, User, UserRole } from '../types';
 import { Send, Paperclip, Smile, Phone, Video } from 'lucide-react-native';
+import { MenuButton } from './MenuButton';
 
 interface ChatWindowProps {
   user: User;
@@ -59,6 +60,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ user, initialChats }) =>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
+          <MenuButton />
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
               {user.role === UserRole.CLIENT ? 'P' : 'M'}

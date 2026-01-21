@@ -40,11 +40,16 @@ export default function ClientDashboardScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Добро пожаловать,</Text>
-          <Text style={styles.userName}>{currentUser.name}</Text>
-          {company && (
-            <Text style={styles.companyName}>{company.name}</Text>
-          )}
+          <View style={styles.headerRow}>
+            <MenuButton />
+            <View>
+              <Text style={styles.greeting}>Добро пожаловать,</Text>
+              <Text style={styles.userName}>{currentUser.name}</Text>
+              {company && (
+                <Text style={styles.companyName}>{company.name}</Text>
+              )}
+            </View>
+          </View>
         </View>
 
         {/* Stats Grid */}
@@ -101,8 +106,6 @@ export default function ClientDashboardScreen() {
           )}
         </View>
       </ScrollView>
-
-      <MenuButton />
     </View>
   );
 }
@@ -120,8 +123,13 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 70,
+    paddingTop: 20,
     paddingBottom: 24,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   greeting: {
     fontSize: 14,

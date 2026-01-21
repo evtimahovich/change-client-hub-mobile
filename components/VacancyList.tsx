@@ -5,6 +5,7 @@ import { Users, ClipboardList, Building2, Search, Plus } from 'lucide-react-nati
 import { useRouter } from 'expo-router';
 import { VacancyDetailModal } from './VacancyDetailModal';
 import { VacancyWizardModal } from './VacancyWizardModal';
+import { MenuButton } from './MenuButton';
 
 interface VacancyListProps {
   vacancies: Vacancy[];
@@ -151,8 +152,11 @@ export const VacancyList: React.FC<VacancyListProps> = ({ vacancies, companies, 
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.title}>Вакансии</Text>
-          <Text style={styles.subtitle}>({vacancies.length}) Всего вакансий</Text>
+          <MenuButton />
+          <View>
+            <Text style={styles.title}>Вакансии</Text>
+            <Text style={styles.subtitle}>({vacancies.length}) Всего вакансий</Text>
+          </View>
         </View>
         {!isClientView && (
           <TouchableOpacity
@@ -282,6 +286,9 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   title: {
     fontSize: 28,

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { CandidateList } from '../../components/CandidateList';
-import { MenuButton } from '../../components/MenuButton';
 import { useApp } from '../../contexts/AppContext';
 
 export default function CandidatesScreen() {
@@ -37,7 +36,6 @@ export default function CandidatesScreen() {
         onAddToVacancy={handleAddToVacancy}
         onCreateVacancy={handleCreateVacancy}
       />
-      <MenuButton />
     </View>
   );
 }

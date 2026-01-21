@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import { VacancyList } from '../../components/VacancyList';
-import { MenuButton } from '../../components/MenuButton';
 import { useApp } from '../../contexts/AppContext';
 
 export default function VacanciesScreen() {
@@ -13,7 +12,6 @@ export default function VacanciesScreen() {
         companies={companies}
         onUpdateVacancy={handleUpdateVacancy}
       />
-      <MenuButton />
     </View>
   );
 }

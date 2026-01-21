@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { CandidateList } from '../../components/CandidateList';
-import { MenuButton } from '../../components/MenuButton';
 import { useApp } from '../../contexts/AppContext';
 
 export default function ClientCandidatesScreen() {
@@ -32,7 +31,6 @@ export default function ClientCandidatesScreen() {
         onStatusChange={handleStatusChange}
         isClientView={true}
       />
-      <MenuButton />
     </View>
   );
 }

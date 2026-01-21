@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import { VacancyList } from '../../components/VacancyList';
-import { MenuButton } from '../../components/MenuButton';
 import { useApp } from '../../contexts/AppContext';
 
 export default function ClientVacanciesScreen() {
@@ -15,7 +14,6 @@ export default function ClientVacanciesScreen() {
         onUpdateVacancy={handleUpdateVacancy}
         isClientView={true}
       />
-      <MenuButton />
     </View>
   );
 }

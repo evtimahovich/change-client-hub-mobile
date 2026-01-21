@@ -4,6 +4,7 @@ import { User, Candidate, CandidateStatus } from '../types';
 import { Briefcase, Users, Calendar, CheckCircle2, Plus, Building2, UserPlus, AlertCircle } from 'lucide-react-native';
 import { useApp } from '../contexts/AppContext';
 import { useRouter } from 'expo-router';
+import { MenuButton } from './MenuButton';
 
 interface DashboardProps {
   user: User;
@@ -85,8 +86,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Дашборд</Text>
-            <Text style={styles.subtitle}>Добро пожаловать, {user.name}</Text>
+            <MenuButton />
+            <View>
+              <Text style={styles.title}>Дашборд</Text>
+              <Text style={styles.subtitle}>Добро пожаловать, {user.name}</Text>
+            </View>
           </View>
 
           {/* Quick Action Buttons */}
@@ -217,7 +221,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 24
   },
-  headerLeft: { flex: 1 },
+  headerLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   title: { fontSize: 28, fontWeight: '600', color: '#000000', marginBottom: 6 },
   subtitle: { fontSize: 14, fontWeight: '400', color: '#71717A' },
 

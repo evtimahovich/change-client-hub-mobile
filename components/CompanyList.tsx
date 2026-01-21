@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, FlatList, StyleSheet } 
 import { Company } from '../types';
 import { Search, Filter, Plus, Building2, MapPin, Users, Briefcase, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { MenuButton } from './MenuButton';
 
 interface CompanyListProps {
   companies: Company[];
@@ -92,8 +93,11 @@ export const CompanyList: React.FC<CompanyListProps> = ({ companies }) => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Компании</Text>
-            <Text style={styles.subtitle}>({filtered.length}) Компаний</Text>
+            <MenuButton />
+            <View>
+              <Text style={styles.title}>Компании</Text>
+              <Text style={styles.subtitle}>({filtered.length}) Компаний</Text>
+            </View>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity
@@ -150,6 +154,9 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   title: {
     fontSize: 28,
