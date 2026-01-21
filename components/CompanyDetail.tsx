@@ -23,7 +23,7 @@ export const CompanyDetail: React.FC<CompanyDetailProps> = ({
 }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('info');
-  const [selectedDM, setSelectedDM] = useState<typeof company.decisionMakers[0] | null>(null);
+  const [selectedDM, setSelectedDM] = useState<NonNullable<typeof company.decisionMakers>[0] | null>(null);
   const [showDMModal, setShowDMModal] = useState(false);
 
   const tabs = [

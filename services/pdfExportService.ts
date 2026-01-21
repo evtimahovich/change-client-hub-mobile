@@ -10,7 +10,7 @@ let generatePDF: any = null;
 async function initializePDF() {
   if (Platform.OS !== 'web' && !generatePDF) {
     try {
-      const htmlToPdf = await import('react-native-html-to-pdf');
+      const htmlToPdf = await import('react-native-html-to-pdf') as { default?: any; convert?: any };
       generatePDF = htmlToPdf.default || htmlToPdf;
     } catch (error) {
       console.warn('react-native-html-to-pdf not available:', error);

@@ -26,7 +26,7 @@ export const VacancyDetailModal: React.FC<VacancyDetailModalProps> = ({
 
   // Edit state
   const [editingRequirements, setEditingRequirements] = useState(false);
-  const [requirementsText, setRequirementsText] = useState(vacancy?.requirements || '');
+  const [requirementsText, setRequirementsText] = useState(vacancy?.requirements?.join('\n') || '');
   const [editingConditions, setEditingConditions] = useState(false);
   const [conditionsText, setConditionsText] = useState(vacancy?.workConditions || '');
 
@@ -161,7 +161,7 @@ export const VacancyDetailModal: React.FC<VacancyDetailModalProps> = ({
                     <Text style={styles.sectionTitle}>Требования</Text>
                     <TouchableOpacity onPress={() => {
                       if (editingRequirements && onUpdateVacancy && vacancy) {
-                        onUpdateVacancy(vacancy.id, { requirements: requirementsText });
+                        onUpdateVacancy(vacancy.id, { requirements: requirementsText.split('\n').filter(r => r.trim()) });
                       }
                       setEditingRequirements(!editingRequirements);
                     }}>

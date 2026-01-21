@@ -47,6 +47,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       [CandidateStatus.REJECTED]: [],
       [CandidateStatus.RESERVE]: [],
       [CandidateStatus.FIRED]: [],
+      [CandidateStatus.BLACKLIST]: [],
     };
 
     candidates.forEach(candidate => {

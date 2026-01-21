@@ -123,7 +123,7 @@ export interface Vacancy {
   };
   workFormat?: ('office' | 'remote' | 'hybrid')[];
   experienceYears?: number;
-  requirements: string; // Текстовое описание требований
+  requirements: string[]; // Массив требований
   responsibilities: string[];
   conditions: string[];
   niceToHave: string[];

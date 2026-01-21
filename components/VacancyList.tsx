@@ -35,7 +35,7 @@ export const VacancyList: React.FC<VacancyListProps> = ({ vacancies, companies, 
       const query = searchQuery.toLowerCase();
       result = result.filter(v =>
         v.title.toLowerCase().includes(query) ||
-        v.requirements.toLowerCase().includes(query) ||
+        v.requirements.some(r => r.toLowerCase().includes(query)) ||
         v.description.toLowerCase().includes(query)
       );
     }
