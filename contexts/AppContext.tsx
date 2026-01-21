@@ -1,14 +1,22 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode } from 'react';
+import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { User, Candidate, Vacancy, CandidateStatus, UserRole, Company, Interaction } from '../types';
 import {
   mockCandidates,
   mockVacancies,
-  mockUsers,
   mockChats,
   mockCompanies
 } from '../mockData';
+import { auth } from '../services/firebase';
+import { getUserProfile, logout as firebaseLogout, UserProfile } from '../services/authService';
 
 interface AppContextType {
+  // Auth
+  authUser: FirebaseUser | null;
+  userProfile: UserProfile | null;
+  isLoading: boolean;
+  logout: () => Promise<void>;
+  // Current user (legacy, now derived from userProfile)
   currentUser: User;
   setCurrentUser: (user: User) => void;
   candidates: Candidate[];
@@ -35,11 +43,66 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User>(mockUsers[0]);
+  // Auth state
+  const [authUser, setAuthUser] = useState<FirebaseUser | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Legacy currentUser - derived from userProfile or mock
+  const [currentUser, setCurrentUser] = useState<User>({
+    id: 'guest',
+    name: 'Гость',
+    email: '',
+    role: UserRole.RECRUITER,
+    avatar: ''
+  });
+
   const [candidates, setCandidates] = useState<Candidate[]>(mockCandidates);
   const [vacancies, setVacancies] = useState<Vacancy[]>(mockVacancies);
   const [companies, setCompanies] = useState<Company[]>(mockCompanies);
   const [chats] = useState(mockChats);
+
+  // Firebase auth listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setAuthUser(user);
+
+      if (user) {
+        // Load user profile from Firestore
+        const profile = await getUserProfile(user.uid);
+        setUserProfile(profile);
+
+        if (profile) {
+          // Update legacy currentUser
+          setCurrentUser({
+            id: user.uid,
+            name: profile.name,
+            email: profile.email,
+            role: profile.role,
+            companyId: profile.companyId,
+            avatar: user.photoURL || ''
+          });
+        }
+      } else {
+        setUserProfile(null);
+        setCurrentUser({
+          id: 'guest',
+          name: 'Гость',
+          email: '',
+          role: UserRole.RECRUITER,
+          avatar: ''
+        });
+      }
+
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const logout = async () => {
+    await firebaseLogout();
+  };
 
   const visibleCandidates = useMemo(() => {
     if (currentUser.role === UserRole.CLIENT && currentUser.companyId) {
@@ -233,6 +296,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{
+      authUser,
+      userProfile,
+      isLoading,
+      logout,
       currentUser,
       setCurrentUser,
       candidates,

@@ -4,10 +4,12 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
-import { AppProvider } from '../contexts/AppContext';
+import { AppProvider, useApp } from '../contexts/AppContext';
+import { UserRole } from '../types';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -52,12 +54,41 @@ function RootLayoutNav() {
   return (
     <AppProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
+        <NavigationWrapper />
       </ThemeProvider>
     </AppProvider>
+  );
+}
+
+function NavigationWrapper() {
+  const { currentUser, authUser, isLoading } = useApp();
+  const isClient = currentUser.role === UserRole.CLIENT;
+
+  // Показываем загрузку пока проверяем авторизацию
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+        <ActivityIndicator size="large" color="#1E2875" />
+      </View>
+    );
+  }
+
+  return (
+    <Stack>
+      {!authUser ? (
+        // Неавторизованный пользователь -> экраны авторизации
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      ) : isClient ? (
+        // Клиент -> клиентский кабинет
+        <Stack.Screen name="(client)" options={{ headerShown: false }} />
+      ) : (
+        // Рекрутер/Админ -> основное приложение
+        <>
+          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </>
+      )}
+      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+    </Stack>
   );
 }

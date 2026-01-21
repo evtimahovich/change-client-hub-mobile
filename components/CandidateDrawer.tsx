@@ -32,11 +32,12 @@ interface CandidateDrawerProps {
   visible: boolean;
   candidate: Candidate | null;
   onClose: () => void;
+  isClientView?: boolean;
 }
 
 type TabType = 'experience' | 'ai-matching' | 'history' | 'additional' | 'comments';
 
-export default function CandidateDrawer({ visible, candidate, onClose }: CandidateDrawerProps) {
+export default function CandidateDrawer({ visible, candidate, onClose, isClientView = false }: CandidateDrawerProps) {
   const { toggleShortlist } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('ai-matching');
   const [positiveComment, setPositiveComment] = useState('');
@@ -362,9 +363,11 @@ export default function CandidateDrawer({ visible, candidate, onClose }: Candida
               <TouchableOpacity>
                 <Text style={styles.linkBlue}>Посмотреть видеоинтервью</Text>
               </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={styles.linkBlue}>Показать контакты</Text>
-              </TouchableOpacity>
+              {!isClientView && (
+                <TouchableOpacity>
+                  <Text style={styles.linkBlue}>Показать контакты</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Shortlist Badge */}
@@ -390,9 +393,11 @@ export default function CandidateDrawer({ visible, candidate, onClose }: Candida
 
             {/* Action Buttons */}
             <View style={styles.actionButtons}>
-              <TouchableOpacity style={styles.iconButton}>
-                <Mail size={20} color="#6B7280" />
-              </TouchableOpacity>
+              {!isClientView && (
+                <TouchableOpacity style={styles.iconButton}>
+                  <Mail size={20} color="#6B7280" />
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => toggleShortlist(candidate.id)}

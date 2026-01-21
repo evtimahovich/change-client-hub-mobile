@@ -11,9 +11,10 @@ interface VacancyListProps {
   companies: Company[];
   onUpdateVacancy?: (vacancyId: string, updates: Partial<Vacancy>) => void;
   onCreateVacancy?: (vacancy: Vacancy) => void;
+  isClientView?: boolean;
 }
 
-export const VacancyList: React.FC<VacancyListProps> = ({ vacancies, companies, onUpdateVacancy, onCreateVacancy }) => {
+export const VacancyList: React.FC<VacancyListProps> = ({ vacancies, companies, onUpdateVacancy, onCreateVacancy, isClientView = false }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'active' | 'closed' | 'all'>('all');
   const [selectedVacancy, setSelectedVacancy] = useState<Vacancy | null>(null);
@@ -153,13 +154,15 @@ export const VacancyList: React.FC<VacancyListProps> = ({ vacancies, companies, 
           <Text style={styles.title}>Вакансии</Text>
           <Text style={styles.subtitle}>({vacancies.length}) Всего вакансий</Text>
         </View>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => setWizardModalVisible(true)}
-        >
-          <Plus size={20} color="#FFFFFF" />
-          <Text style={styles.createButtonText}>Создать вакансию</Text>
-        </TouchableOpacity>
+        {!isClientView && (
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => setWizardModalVisible(true)}
+          >
+            <Plus size={20} color="#FFFFFF" />
+            <Text style={styles.createButtonText}>Создать вакансию</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Filter Row */}

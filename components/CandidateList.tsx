@@ -15,6 +15,7 @@ interface CandidateListProps {
   onStatusChange: (candidateId: string, newStatus: CandidateStatus, comment: string) => void;
   onAddToVacancy?: (candidateIds: string[], vacancyId: string) => void;
   onCreateVacancy?: (vacancy: Vacancy) => void;
+  isClientView?: boolean;
 }
 
 export const CandidateList: React.FC<CandidateListProps> = ({
@@ -25,6 +26,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
   onStatusChange,
   onAddToVacancy,
   onCreateVacancy,
+  isClientView = false,
 }) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -180,13 +182,15 @@ export const CandidateList: React.FC<CandidateListProps> = ({
               <Text style={styles.actionMenuText}>История взаимодействий</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.sendToVacancyButton}
-              onPress={() => handleOpenAddToVacancy(c.id)}
-            >
-              <Briefcase size={12} color="#FFFFFF" />
-              <Text style={styles.sendToVacancyText}>Отправить на вакансию</Text>
-            </TouchableOpacity>
+            {!isClientView && (
+              <TouchableOpacity
+                style={styles.sendToVacancyButton}
+                onPress={() => handleOpenAddToVacancy(c.id)}
+              >
+                <Briefcase size={12} color="#FFFFFF" />
+                <Text style={styles.sendToVacancyText}>Отправить на вакансию</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>
@@ -430,10 +434,12 @@ export const CandidateList: React.FC<CandidateListProps> = ({
               <Filter size={16} color="#18181B" />
               <Text style={styles.filterButtonText}>Фильтр</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.addButton} onPress={() => router.push('/candidate/new')}>
-              <Plus size={16} color="#FFFFFF" />
-              <Text style={styles.addButtonText}>Добавить</Text>
-            </TouchableOpacity>
+            {!isClientView && (
+              <TouchableOpacity style={styles.addButton} onPress={() => router.push('/candidate/new')}>
+                <Plus size={16} color="#FFFFFF" />
+                <Text style={styles.addButtonText}>Добавить</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -480,6 +486,7 @@ export const CandidateList: React.FC<CandidateListProps> = ({
           setDrawerVisible(false);
           setSelectedCandidate(null);
         }}
+        isClientView={isClientView}
       />
 
       <VacancyWizardModal
