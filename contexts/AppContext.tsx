@@ -74,23 +74,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Retry если профиль не найден (race condition при Google входе)
         if (!profile) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
           profile = await getUserProfile(user.uid);
         }
 
         setUserProfile(profile);
 
-        if (profile) {
-          // Update legacy currentUser
-          setCurrentUser({
-            id: user.uid,
-            name: profile.name,
-            email: profile.email,
-            role: profile.role,
-            companyId: profile.companyId,
-            avatar: user.photoURL || ''
-          });
-        }
+        // Update currentUser - используем данные профиля или Firebase User как fallback
+        setCurrentUser({
+          id: user.uid,
+          name: profile?.name || user.displayName || 'Пользователь',
+          email: profile?.email || user.email || '',
+          role: profile?.role || UserRole.CLIENT,
+          companyId: profile?.companyId,
+          avatar: user.photoURL || ''
+        });
       } else {
         setUserProfile(null);
         setCurrentUser({
@@ -113,7 +111,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const visibleCandidates = useMemo(() => {
-    if (currentUser.role === UserRole.CLIENT && currentUser.companyId) {
+    if (currentUser.role === UserRole.CLIENT) {
+      // Клиент без привязки к компании не видит кандидатов
+      if (!currentUser.companyId) {
+        return [];
+      }
+      // Клиент видит только кандидатов по вакансиям своей компании
       const companyVacancies = vacancies.filter(v => v.companyId === currentUser.companyId).map(v => v.title);
       return candidates.filter(c => companyVacancies.includes(c.position));
     }
@@ -122,7 +125,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const activeVacancies = useMemo(() => {
     const active = vacancies.filter(v => v.status === 'active');
-    if (currentUser.role === UserRole.CLIENT && currentUser.companyId) {
+    if (currentUser.role === UserRole.CLIENT) {
+      // Клиент без привязки к компании не видит вакансии
+      if (!currentUser.companyId) {
+        return [];
+      }
       return active.filter(v => v.companyId === currentUser.companyId);
     }
     return active;

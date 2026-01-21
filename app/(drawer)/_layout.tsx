@@ -63,7 +63,7 @@ export default function DrawerLayout() {
         drawerLabelStyle: {
           fontSize: 16,
           fontWeight: '600',
-          marginLeft: -16,
+          marginLeft: 8,
         },
         drawerItemStyle: {
           borderRadius: 8,
