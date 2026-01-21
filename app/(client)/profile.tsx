@@ -9,22 +9,26 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  useWindowDimensions,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useApp } from '../../contexts/AppContext';
-import { updateUserProfile, getUserProfile } from '../../services/authService';
+import { updateUserProfile } from '../../services/authService';
 import { MenuButton } from '../../components/MenuButton';
-import { ArrowLeft, User, Mail, Building2, Save } from 'lucide-react-native';
+import { User, Mail, Building2, Save, Camera } from 'lucide-react-native';
 
 export default function ClientProfileScreen() {
-  const router = useRouter();
   const { currentUser, authUser, setCurrentUser, companies } = useApp();
+  const { width } = useWindowDimensions();
 
   const [name, setName] = useState(currentUser.name);
   const [isLoading, setIsLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   const company = companies.find(c => c.id === currentUser.companyId);
+
+  // Адаптивность для веб
+  const isWideScreen = width > 768;
+  const contentMaxWidth = 600;
 
   useEffect(() => {
     setHasChanges(name !== currentUser.name);
@@ -43,7 +47,6 @@ export default function ClientProfileScreen() {
     if (error) {
       Alert.alert('Ошибка', error);
     } else {
-      // Обновляем локальный стейт
       setCurrentUser({ ...currentUser, name: name.trim() });
       Alert.alert('Успешно', 'Профиль обновлён');
       setHasChanges(false);
@@ -64,9 +67,11 @@ export default function ClientProfileScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <MenuButton />
-          <Text style={styles.headerTitle}>Личный кабинет</Text>
+        <View style={[styles.headerContent, { maxWidth: contentMaxWidth }]}>
+          <View style={styles.headerRow}>
+            <MenuButton />
+            <Text style={styles.headerTitle}>Личный кабинет</Text>
+          </View>
         </View>
       </View>
 
@@ -75,83 +80,99 @@ export default function ClientProfileScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Avatar Section */}
-        <View style={styles.avatarSection}>
-          {currentUser.avatar ? (
-            <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
+        {/* Центрированный контент */}
+        <View style={styles.centerWrapper}>
+          <View style={[styles.contentCard, { maxWidth: contentMaxWidth }]}>
+            {/* Avatar Section */}
+            <View style={styles.avatarSection}>
+              <View style={styles.avatarWrapper}>
+                {currentUser.avatar ? (
+                  <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
+                ) : (
+                  <View style={styles.avatarPlaceholder}>
+                    <Text style={styles.avatarText}>{getInitials(currentUser.name)}</Text>
+                  </View>
+                )}
+                <View style={styles.cameraButton}>
+                  <Camera size={16} color="#FFFFFF" />
+                </View>
+              </View>
+              <Text style={styles.userName}>{currentUser.name}</Text>
+              <View style={styles.roleBadge}>
+                <Text style={styles.roleLabel}>Клиент</Text>
+              </View>
             </View>
-          )}
-          <Text style={styles.roleLabel}>Клиент</Text>
-        </View>
 
-        {/* Form */}
-        <View style={styles.form}>
-          {/* Name */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Имя</Text>
-            <View style={styles.inputContainer}>
-              <User size={20} color="#64748B" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="Введите имя"
-                placeholderTextColor="#94A3B8"
-              />
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Form */}
+            <View style={styles.form}>
+              {/* Name */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Имя</Text>
+                <View style={styles.inputContainer}>
+                  <User size={20} color="#64748B" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    value={name}
+                    onChangeText={setName}
+                    placeholder="Введите имя"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+              </View>
+
+              {/* Email (readonly) */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Email</Text>
+                <View style={[styles.inputContainer, styles.inputDisabled]}>
+                  <Mail size={20} color="#94A3B8" style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, styles.inputTextDisabled]}
+                    value={currentUser.email}
+                    editable={false}
+                  />
+                </View>
+                <Text style={styles.hint}>Email нельзя изменить</Text>
+              </View>
+
+              {/* Company (readonly) */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Компания</Text>
+                <View style={[styles.inputContainer, styles.inputDisabled]}>
+                  <Building2 size={20} color="#94A3B8" style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, styles.inputTextDisabled]}
+                    value={company?.name || 'Не привязана'}
+                    editable={false}
+                  />
+                </View>
+                {!company && (
+                  <Text style={styles.hint}>Обратитесь к рекрутеру для привязки к компании</Text>
+                )}
+              </View>
+
+              {/* Save Button */}
+              <TouchableOpacity
+                style={[
+                  styles.saveButton,
+                  (!hasChanges || isLoading) && styles.saveButtonDisabled
+                ]}
+                onPress={handleSave}
+                disabled={!hasChanges || isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Save size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>Сохранить изменения</Text>
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
-
-          {/* Email (readonly) */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <View style={[styles.inputContainer, styles.inputDisabled]}>
-              <Mail size={20} color="#94A3B8" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, styles.inputTextDisabled]}
-                value={currentUser.email}
-                editable={false}
-              />
-            </View>
-            <Text style={styles.hint}>Email нельзя изменить</Text>
-          </View>
-
-          {/* Company (readonly) */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Компания</Text>
-            <View style={[styles.inputContainer, styles.inputDisabled]}>
-              <Building2 size={20} color="#94A3B8" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, styles.inputTextDisabled]}
-                value={company?.name || 'Не привязана'}
-                editable={false}
-              />
-            </View>
-            {!company && (
-              <Text style={styles.hint}>Обратитесь к рекрутеру для привязки к компании</Text>
-            )}
-          </View>
-
-          {/* Save Button */}
-          <TouchableOpacity
-            style={[
-              styles.saveButton,
-              (!hasChanges || isLoading) && styles.saveButtonDisabled
-            ]}
-            onPress={handleSave}
-            disabled={!hasChanges || isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <>
-                <Save size={20} color="#FFFFFF" />
-                <Text style={styles.saveButtonText}>Сохранить изменения</Text>
-              </>
-            )}
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -164,12 +185,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
+    alignItems: 'center',
+  },
+  headerContent: {
+    width: '100%',
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 16,
   },
   headerRow: {
     flexDirection: 'row',
@@ -185,19 +210,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+  },
+  centerWrapper: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  contentCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    overflow: 'hidden',
   },
   avatarSection: {
     alignItems: 'center',
     paddingVertical: 32,
-    backgroundColor: '#FFFFFF',
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    backgroundColor: '#FAFBFC',
+  },
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: 16,
   },
   avatarImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 12,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
   },
   avatarPlaceholder: {
     width: 100,
@@ -206,23 +252,50 @@ const styles = StyleSheet.create({
     backgroundColor: '#0066FF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
   },
   avatarText: {
     fontSize: 36,
     fontWeight: '700',
     color: '#FFFFFF',
   },
+  cameraButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#0066FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 8,
+  },
+  roleBadge: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
   roleLabel: {
     fontSize: 14,
-    color: '#64748B',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    fontWeight: '500',
+    color: '#0066FF',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
   },
   form: {
-    paddingHorizontal: 20,
+    padding: 24,
   },
   inputGroup: {
     marginBottom: 20,
@@ -250,12 +323,12 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 14,
     fontSize: 16,
     color: '#0F172A',
   },
   inputTextDisabled: {
-    color: '#94A3B8',
+    color: '#64748B',
   },
   hint: {
     fontSize: 12,
@@ -271,10 +344,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#0066FF',
     paddingVertical: 16,
     borderRadius: 12,
-    marginTop: 12,
+    marginTop: 8,
   },
   saveButtonDisabled: {
-    backgroundColor: '#94A3B8',
+    backgroundColor: '#CBD5E1',
   },
   saveButtonText: {
     fontSize: 16,
