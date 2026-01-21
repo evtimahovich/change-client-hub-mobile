@@ -63,7 +63,9 @@ export default function ClientDashboardScreen() {
           activeVacancies.map(vacancy => (
             <View key={vacancy.id} style={styles.vacancyCard}>
               <Text style={styles.vacancyTitle}>{vacancy.title}</Text>
-              <Text style={styles.vacancyLocation}>{vacancy.location}</Text>
+              <Text style={styles.vacancyLocation}>
+                {vacancy.location ? `${vacancy.location.city}, ${vacancy.location.country}` : 'Не указано'}
+              </Text>
               <Text style={styles.vacancyCandidates}>
                 {visibleCandidates.filter(c => c.position === vacancy.title).length} кандидатов
               </Text>
